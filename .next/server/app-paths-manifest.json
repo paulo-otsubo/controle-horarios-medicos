@@ -1,0 +1,14 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/(public)/cadastro/page": "app/(public)/cadastro/page.js",
+  "/(public)/login/page": "app/(public)/login/page.js",
+  "/api/relatorios/route": "app/api/relatorios/route.js",
+  "/page": "app/page.js",
+  "/auth/registros/page": "app/auth/registros/page.js",
+  "/auth/relatorios/page": "app/auth/relatorios/page.js",
+  "/auth/equipe/page": "app/auth/equipe/page.js",
+  "/auth/equipe/nova/page": "app/auth/equipe/nova/page.js",
+  "/auth/equipe/relatorio/page": "app/auth/equipe/relatorio/page.js",
+  "/auth/equipe/[id]/page": "app/auth/equipe/[id]/page.js",
+  "/auth/dashboard/page": "app/auth/dashboard/page.js"
+}

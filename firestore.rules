@@ -1,0 +1,37 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.role == 'admin';
+    }
+
+    // ----- Coleção de Equipes -----
+    match /equipes/{equipeId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ----- Coleção de Registros -----
+    match /registros/{regId} {
+      allow read: if isSignedIn();
+      // Usuário só pode mexer nos seus próprios registros
+      allow create: if isSignedIn() && request.resource.data.usuarioId == request.auth.uid;
+      allow update, delete: if isSignedIn() && resource.data.usuarioId == request.auth.uid;
+    }
+
+    // ----- Coleção de Planos -----
+    match /planos/{planoId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn(); // ajustes futuros de permissão podem ser aplicados
+    }
+
+    // Fallback – nega tudo
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+} 

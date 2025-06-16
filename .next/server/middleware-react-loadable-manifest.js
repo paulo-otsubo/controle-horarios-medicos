@@ -1,0 +1,1 @@
+self.__REACT_LOADABLE_MANIFEST='{"app/auth/dashboard/page.tsx -> ../../../components/dashboard/HoursChart":{"id":12144,"files":["static/chunks/401.3763c1dd631d513f.js","static/chunks/144.6f522c81a74cb474.js"]}}';

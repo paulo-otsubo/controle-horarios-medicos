@@ -1,0 +1,1 @@
+self.__SSG_MANIFEST=new Set(["\u002Fauth\u002Fequipe\u002F[id]"]);self.__SSG_MANIFEST_CB&&self.__SSG_MANIFEST_CB()
