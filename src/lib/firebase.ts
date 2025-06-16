@@ -1,6 +1,6 @@
-import { initializeApp } from 'firebase/app';
+import { initializeApp, FirebaseError } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, enableIndexedDbPersistence } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY!,
@@ -27,3 +27,20 @@ if (typeof window === 'undefined') {
 
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+
+// Enable offline persistence
+if (typeof window !== 'undefined') {
+  try {
+    enableIndexedDbPersistence(db);
+  } catch (err) {
+    if (err instanceof FirebaseError) {
+      if (err.code === 'failed-precondition') {
+        console.warn(
+          'A persistência do Firestore falhou. Isso geralmente ocorre se você tiver várias abas abertas. Os dados não serão salvos offline nesta aba.'
+        );
+      } else if (err.code === 'unimplemented') {
+        console.warn('O navegador atual não suporta persistência offline do Firestore.');
+      }
+    }
+  }
+}

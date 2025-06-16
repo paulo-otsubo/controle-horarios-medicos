@@ -22,6 +22,8 @@ export const useRegistroStore = create<RegistroState>()(
           await setDoc(doc(db, 'registros', reg.id as string), reg);
         } catch (e) {
           console.error('Erro ao salvar no Firestore', e);
+          set((state) => ({ registros: state.registros.filter((r) => r.id !== reg.id) }));
+          throw e;
         }
       },
       updateRegistro: async (id, reg) => {

@@ -4,14 +4,34 @@ import React from 'react';
 import { Registro } from '../../types/registro';
 import { useSwipeable } from 'react-swipeable';
 import { useHaptics } from '../../hooks/useHaptics';
-import { format } from 'date-fns';
+import { format, parse } from 'date-fns';
 import { useRouter } from 'next/navigation';
-import { TrashIcon, PencilIcon } from '@heroicons/react/24/outline';
+import {
+  TrashIcon,
+  PencilIcon,
+  ClockIcon,
+  CalendarIcon,
+  ExclamationCircleIcon
+} from '@heroicons/react/24/outline';
+import { cn } from '../../lib/utils';
+import { ptBR } from 'date-fns/locale';
 
 interface Props {
   registro: Registro;
   onDelete: () => void;
 }
+
+const tipoStyles: Record<Registro['tipo'], { label: string; className: string }> = {
+  trabalho: { label: 'Trabalho', className: 'bg-primary/10 text-primary' },
+  sobreaviso_acionado: {
+    label: 'Sobreaviso Acionado',
+    className: 'bg-warning/20 text-warning-foreground'
+  },
+  sobreaviso_nao_acionado: {
+    label: 'Sobreaviso',
+    className: 'bg-purple-100 text-purple-800'
+  }
+};
 
 export default function RegistroCard({ registro, onDelete }: Props) {
   const router = useRouter();
@@ -19,42 +39,94 @@ export default function RegistroCard({ registro, onDelete }: Props) {
 
   const handlers = useSwipeable({
     onSwipedLeft: () => {
-      vibrateSuccess();
-      onDelete();
+      if (window.confirm('Tem certeza que deseja apagar este registro?')) {
+        vibrateSuccess();
+        onDelete();
+      }
     },
     onSwipedRight: () => {
       vibrateSuccess();
       router.push(`/auth/registros?edit=${registro.id}`);
     },
     trackTouch: true,
-    delta: 40
+    delta: 60
   });
 
   const duracao = registro.horaSaida
     ? `${registro.horaEntrada} → ${registro.horaSaida}`
-    : `${registro.horaEntrada} → …`;
+    : `${registro.horaEntrada} → Presente`;
 
-  const tipoLabel = {
-    trabalho: 'Trabalho',
-    sobreaviso_acionado: 'Sobreaviso acionado',
-    sobreaviso_nao_acionado: 'Sobreaviso não acionado'
-  }[registro.tipo];
+  const { label: tipoLabel, className: tipoClassName } = tipoStyles[registro.tipo];
+
+  const dateObj = new Date(`${registro.data}T00:00:00`);
+
+  // Informações específicas do sobreaviso
+  const isSobreaviso = registro.tipo.includes('sobreaviso');
+  const sobreavisoInfo = React.useMemo(() => {
+    if (!isSobreaviso || !registro.sobreavisoInicio || !registro.sobreavisoFim) return null;
+
+    try {
+      const inicio = parse(registro.sobreavisoInicio, 'yyyy-MM-dd HH:mm', new Date());
+      const fim = parse(registro.sobreavisoFim, 'yyyy-MM-dd HH:mm', new Date());
+
+      return {
+        inicio: format(inicio, "dd/MM 'às' HH:mm", { locale: ptBR }),
+        fim: format(fim, "dd/MM 'às' HH:mm", { locale: ptBR })
+      };
+    } catch {
+      return null;
+    }
+  }, [isSobreaviso, registro.sobreavisoInicio, registro.sobreavisoFim]);
 
   return (
-    <div {...handlers} className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-      <div className="flex items-start justify-between text-sm text-gray-500">
-        <span>{format(new Date(registro.data), 'EEE, dd MMM')}</span>
-        <div className="flex gap-2 md:opacity-0 md:group-hover:opacity-100">
-          <PencilIcon
-            className="h-4 w-4 cursor-pointer"
-            onClick={() => router.push(`/auth/registros?edit=${registro.id}`)}
-          />
-          <TrashIcon className="h-4 w-4 cursor-pointer" onClick={onDelete} />
-        </div>
+    <div {...handlers} className="bg-card group relative rounded-lg border p-4">
+      {/* Ações para Desktop */}
+      <div className="absolute right-4 top-4 flex items-center space-x-2 opacity-0 transition-opacity group-hover:opacity-100">
+        <button
+          onClick={() => router.push(`/auth/registros?edit=${registro.id}`)}
+          className="hover:bg-secondary rounded-full p-1.5"
+        >
+          <PencilIcon className="text-muted-foreground size-4" />
+        </button>
+        <button onClick={onDelete} className="hover:bg-destructive/10 rounded-full p-1.5">
+          <TrashIcon className="text-destructive/80 size-4" />
+        </button>
       </div>
-      <p className="mt-2 text-lg font-medium text-gray-800">{duracao}</p>
-      <p className="text-sm text-gray-600">{tipoLabel}</p>
-      {registro.observacoes && <p className="mt-1 text-xs text-gray-500">{registro.observacoes}</p>}
+
+      <div className="flex flex-col space-y-3">
+        <div className="flex items-center justify-between">
+          <p className="text-foreground flex items-center gap-2 text-sm font-medium">
+            <CalendarIcon className="text-muted-foreground size-4" />
+            {format(dateObj, "EEE, dd 'de' MMMM", { locale: ptBR })}
+          </p>
+          <span className={cn('rounded-full px-2.5 py-0.5 text-xs font-semibold', tipoClassName)}>
+            {tipoLabel}
+          </span>
+        </div>
+
+        <div className="text-muted-foreground flex items-center space-x-2">
+          <ClockIcon className="size-4" />
+          <p className="text-foreground text-base">{duracao}</p>
+        </div>
+
+        {/* Informações específicas do sobreaviso */}
+        {sobreavisoInfo && (
+          <div className="rounded-md bg-purple-50 p-2 text-sm">
+            <div className="mb-1 flex items-center gap-1 font-medium text-purple-700">
+              <ExclamationCircleIcon className="size-4" />
+              Período Programado
+            </div>
+            <div className="text-purple-600">
+              <div>Início: {sobreavisoInfo.inicio}</div>
+              <div>Fim: {sobreavisoInfo.fim}</div>
+            </div>
+          </div>
+        )}
+
+        {registro.observacoes && (
+          <p className="text-muted-foreground pt-2 text-sm">{registro.observacoes}</p>
+        )}
+      </div>
     </div>
   );
 }

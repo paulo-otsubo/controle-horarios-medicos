@@ -8,6 +8,7 @@ interface Summary {
 
 interface Props {
   summary: Summary;
+  highlightTrabalho?: boolean;
 }
 
 const Card = ({
@@ -30,11 +31,15 @@ const Card = ({
   </div>
 );
 
-export default function SummaryCards({ summary }: Props) {
+export default function SummaryCards({ summary, highlightTrabalho = false }: Props) {
   const { totalHorasTrabalho, metaHoras, sobreavisoHoras } = summary;
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-      <Card title="Horas Trabalhadas (mês)" value={totalHorasTrabalho.toFixed(1)} />
+      <Card
+        title="Horas Trabalhadas (mês)"
+        value={totalHorasTrabalho.toFixed(1)}
+        highlight={highlightTrabalho}
+      />
       <Card title="Meta Mensal" value={metaHoras.toString()} highlight />
       <Card title="Horas Sobreaviso" value={sobreavisoHoras.toFixed(1)} />
     </div>

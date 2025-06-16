@@ -12,7 +12,10 @@ service cloud.firestore {
     // ----- Coleção de Equipes -----
     match /equipes/{equipeId} {
       allow read: if isSignedIn();
-      allow create, update, delete: if isAdmin();
+      // criar equipe: usuário autenticado e ele é adminId
+      allow create: if isSignedIn() && request.resource.data.adminId == request.auth.uid;
+      // atualizar: se admin da equipe
+      allow update, delete: if isSignedIn() && resource.data.adminId == request.auth.uid;
     }
 
     // ----- Coleção de Registros -----

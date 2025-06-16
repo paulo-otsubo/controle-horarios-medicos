@@ -12,6 +12,11 @@ export const RegisterSchema = LoginSchema.extend({
   path: ['confirmPassword']
 });
 
+export const UserSchema = z.object({
+  name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
+  email: z.string().email('Email inválido')
+});
+
 export const RegistroSchema = z
   .object({
     data: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, {
@@ -24,7 +29,10 @@ export const RegistroSchema = z
       message: 'Hora inválida'
     }),
     tipo: z.enum(['trabalho', 'sobreaviso_acionado', 'sobreaviso_nao_acionado']),
-    observacoes: z.string().max(500).optional()
+    observacoes: z.string().max(500).optional(),
+    sobreavisoInicio: z.string().optional(),
+    sobreavisoFim: z.string().optional(),
+    sobreavisoAtivo: z.boolean().optional()
   })
   .refine(
     (val) => {
@@ -40,3 +48,8 @@ export const RegistroSchema = z
       path: ['horaSaida']
     }
   );
+
+export const EquipeSchema = z.object({
+  nome: z.string().min(1, 'Nome é obrigatório').max(100, 'Nome muito longo'),
+  descricao: z.string().max(500, 'Descrição muito longa').optional()
+});

@@ -1,10 +1,17 @@
-import React from 'react';
-import PerformanceInit from '../components/PerformanceInit';
 import './globals.css';
+import type { Metadata } from 'next';
+import { Nunito } from 'next/font/google';
+import { cn } from '../lib/utils';
 
-export const metadata = {
+const fontSans = Nunito({
+  subsets: ['latin'],
+  variable: '--font-sans'
+});
+
+export const metadata: Metadata = {
   title: 'Controle de Horários Médicos',
-  description: 'Sistema mobile-first para registro de horários de equipes médicas.'
+  description: 'Uma forma moderna de gerenciar a carga horária de médicos.',
+  manifest: '/manifest.json'
 };
 
 const HeadTags = () => (
@@ -15,12 +22,15 @@ const HeadTags = () => (
   </>
 );
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" suppressHydrationWarning>
       <HeadTags />
-      <body className="min-h-screen bg-white text-gray-900 antialiased">
-        <PerformanceInit />
+      <body className={cn('min-h-screen bg-background font-sans antialiased', fontSans.variable)}>
         {children}
       </body>
     </html>

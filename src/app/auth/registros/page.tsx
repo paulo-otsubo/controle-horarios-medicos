@@ -3,10 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import { useRegistroStore } from '../../../stores/registroStore';
 import RegistroCard from '../../../components/ui/RegistroCard';
-import PageHeader from '../../../components/layout/PageHeader';
 import { useSearchParams } from 'next/navigation';
 import RegistroForm from '../../../components/forms/RegistroForm';
 import { createPortal } from 'react-dom';
+import { format } from 'date-fns';
 
 export default function RegistrosPage() {
   const { registros, deleteRegistro } = useRegistroStore();
@@ -14,6 +14,7 @@ export default function RegistrosPage() {
   const [modalRegistro, setModalRegistro] = useState<
     import('../../../types/registro').Registro | null
   >(null);
+  const [filterDate, setFilterDate] = useState('');
 
   useEffect(() => {
     const editId = searchParams.get('edit');
@@ -29,13 +30,47 @@ export default function RegistrosPage() {
     deleteRegistro(id);
   };
 
-  const sorted = [...registros].sort((a, b) => (a.data < b.data ? 1 : -1));
+  let filtered = [...registros];
+  if (filterDate) {
+    filtered = filtered.filter((r) => r.data === filterDate);
+  }
+  const sorted = filtered.sort((a, b) => (a.data < b.data ? 1 : -1));
 
   return (
-    <section className="min-h-[calc(100vh-4rem)] p-4 md:p-6 bg-gray-50">
-      <PageHeader title="Registros" />
+    <section className="min-h-[calc(100vh-4rem)] bg-gray-50 p-4 md:p-6">
+      <div className="mb-4">
+        <div className="mb-2 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800">Seus Registros</h1>
+            <p className="text-sm text-gray-600">
+              Visualize e gerencie todos os seus registros. Filtre por data para encontrar um dia
+              específico.
+            </p>
+          </div>
+          <input
+            type="date"
+            value={filterDate}
+            onChange={(e) => setFilterDate(e.target.value)}
+            className="rounded border p-2"
+            max={format(new Date(), 'yyyy-MM-dd')}
+          />
+        </div>
+        {filterDate && (
+          <button
+            onClick={() => setFilterDate('')}
+            className="mb-4 text-sm text-primary-600 hover:underline"
+          >
+            Limpar Filtro
+          </button>
+        )}
+      </div>
       {sorted.length === 0 ? (
-        <p className="text-gray-600">Sem registros.</p>
+        <div className="py-12 text-center">
+          <p className="text-gray-600">Você ainda não tem registros.</p>
+          <p className="mt-2 text-sm text-gray-500">
+            Use o dashboard para iniciar um novo registro.
+          </p>
+        </div>
       ) : (
         <div className="space-y-4">
           {sorted.map((r) => (

@@ -14,7 +14,7 @@ export default function RelatorioConsolidadoPage() {
         {data.length === 0 ? (
           <p className="text-gray-600">Sem registros.</p>
         ) : (
-          <table className="min-w-full divide-y divide-gray-200 bg-white shadow-sm rounded-lg">
+          <table className="min-w-full divide-y divide-gray-200 rounded-lg bg-white shadow-sm">
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Equipe</th>
@@ -29,9 +29,9 @@ export default function RelatorioConsolidadoPage() {
             <tbody className="divide-y divide-gray-200">
               {data.map((d) => (
                 <tr key={d.equipeId}>
-                  <td className="px-4 py-2 whitespace-nowrap">{d.equipeNome}</td>
-                  <td className="px-4 py-2 whitespace-nowrap">{d.horasTrabalho.toFixed(1)}</td>
-                  <td className="px-4 py-2 whitespace-nowrap">{d.horasSobreaviso.toFixed(1)}</td>
+                  <td className="whitespace-nowrap px-4 py-2">{d.equipeNome}</td>
+                  <td className="whitespace-nowrap px-4 py-2">{d.horasTrabalho.toFixed(1)}</td>
+                  <td className="whitespace-nowrap px-4 py-2">{d.horasSobreaviso.toFixed(1)}</td>
                 </tr>
               ))}
             </tbody>

@@ -11,6 +11,9 @@ import {
 } from 'firebase/auth';
 import Cookies from 'js-cookie';
 import { logEventSafe } from '../lib/analytics';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { db } from '../lib/firebase';
+import { acceptInvite } from '../lib/team';
 
 interface UseAuthReturn {
   user: User | null;
@@ -32,6 +35,28 @@ export function useAuth(): UseAuthReturn {
         const token = await u.getIdToken();
         Cookies.set('auth-token', token, { expires: 1 });
         localStorage.setItem('user', JSON.stringify({ uid: u.uid, email: u.email }));
+        // Garantir doc em users/
+        const userDocRef = doc(db, 'users', u.uid);
+        const snap = await getDoc(userDocRef);
+        if (!snap.exists()) {
+          await setDoc(userDocRef, {
+            email: u.email,
+            nome: u.displayName ?? '',
+            role: 'medico',
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+            isActive: true
+          });
+        }
+
+        // Se usuário sem equipe, tentar aceitar convite
+        const userData = (await getDoc(userDocRef)).data();
+        if (userData && !userData.equipeId && u.email) {
+          await acceptInvite(u.uid, u.email);
+        }
+
+        const equipeId = (await getDoc(userDocRef)).data()?.equipeId ?? '';
+        localStorage.setItem('equipeId', equipeId);
       } else {
         Cookies.remove('auth-token');
         localStorage.removeItem('user');
@@ -59,7 +84,16 @@ export function useAuth(): UseAuthReturn {
   }, []);
 
   const register = useCallback(async (email: string, password: string) => {
-    await createUserWithEmailAndPassword(auth, email, password);
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    // Cria doc usuário
+    await setDoc(doc(db, 'users', cred.user.uid), {
+      email,
+      nome: '',
+      role: 'medico',
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      isActive: true
+    });
     logEventSafe('register_success');
   }, []);
 

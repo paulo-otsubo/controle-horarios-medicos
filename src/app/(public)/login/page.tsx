@@ -31,6 +31,14 @@ export default function LoginPage() {
     }
   }, [loading, user, router]);
 
+  if (!loading && user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4 text-gray-600">
+        Redirecionando…
+      </div>
+    );
+  }
+
   const onSubmit = async (data: LoginInput) => {
     await login(data.email, data.password);
   };

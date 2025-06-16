@@ -1,52 +1,65 @@
 'use client';
 
+import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import clsx from 'clsx';
-import React from 'react';
 import {
+  ChartBarSquareIcon,
   HomeIcon,
-  ClockIcon,
-  ChartBarIcon,
-  UsersIcon,
-  Cog6ToothIcon
+  RectangleStackIcon,
+  UserGroupIcon
 } from '@heroicons/react/24/outline';
+import {
+  ChartBarSquareIcon as ChartBarSquareSolid,
+  HomeIcon as HomeSolid,
+  RectangleStackIcon as RectangleStackSolid,
+  UserGroupIcon as UserGroupSolid
+} from '@heroicons/react/24/solid';
+import { cn } from '../../lib/utils';
 
-interface NavItem {
-  href: string;
-  label: string;
-  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
-}
-
-const navItems: NavItem[] = [
-  { href: '/auth/dashboard', label: 'Home', icon: HomeIcon },
-  { href: '/auth/registros', label: 'Reg.', icon: ClockIcon },
-  { href: '/auth/relatorios', label: 'Dash', icon: ChartBarIcon },
-  { href: '/auth/equipe', label: 'Equipe', icon: UsersIcon },
-  { href: '/auth/planos', label: 'Config', icon: Cog6ToothIcon }
+const navLinks = [
+  { href: '/auth/dashboard', label: 'Início', Icon: HomeIcon, ActiveIcon: HomeSolid },
+  {
+    href: '/auth/registros',
+    label: 'Registros',
+    Icon: RectangleStackIcon,
+    ActiveIcon: RectangleStackSolid
+  },
+  { href: '/auth/equipe', label: 'Equipe', Icon: UserGroupIcon, ActiveIcon: UserGroupSolid },
+  {
+    href: '/auth/relatorios',
+    label: 'Relatórios',
+    Icon: ChartBarSquareIcon,
+    ActiveIcon: ChartBarSquareSolid
+  }
 ];
 
 export default function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 flex h-14 bg-white shadow-md md:hidden">
-      {navItems.map(({ href, label, icon: Icon }) => {
-        const isActive = pathname.startsWith(href);
-        return (
-          <Link
-            key={href}
-            href={href}
-            className={clsx(
-              'flex flex-1 flex-col items-center justify-center text-xs font-medium',
-              isActive ? 'text-primary-600' : 'text-gray-500 hover:text-gray-700'
-            )}
-          >
-            <Icon className="h-6 w-6" aria-hidden="true" />
-            {label}
-          </Link>
-        );
-      })}
+    <nav className="bg-background/80 fixed inset-x-0 bottom-0 z-40 border-t pb-[env(safe-area-inset-bottom)] backdrop-blur-lg">
+      <div className="mx-auto grid h-16 max-w-md grid-cols-4">
+        {navLinks.map(({ href, label, Icon, ActiveIcon }) => {
+          const isActive = pathname.startsWith(href);
+          return (
+            <Link
+              key={href}
+              href={href}
+              className="flex flex-col items-center justify-center space-y-1 text-sm font-medium"
+            >
+              {isActive ? (
+                <ActiveIcon className="text-primary size-6" />
+              ) : (
+                <Icon className="text-muted-foreground size-6" />
+              )}
+              <span className={cn('text-xs', isActive ? 'text-primary' : 'text-muted-foreground')}>
+                {label}
+              </span>
+            </Link>
+          );
+        })}
+      </div>
     </nav>
   );
 }

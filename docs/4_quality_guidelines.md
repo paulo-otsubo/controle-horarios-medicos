@@ -724,3 +724,20 @@ jobs:
 - [ ] Documentação atualizada
 - [ ] Performance testada em dispositivos mobile reais
 - [ ] Acessibilidade validada com screen readers
+
+### Regra de Ouro: Proibição do `any`
+
+**O uso do tipo `any` é estritamente proibido neste projeto.**
+
+- **Justificativa:** Usar `any` desliga completamente a verificação de tipos do TypeScript para uma variável, anulando os benefícios de segurança e autocompletar que o TypeScript oferece. Erros de build recentes, como `TypeError: ... is not a function` ou `Property ... does not exist on type`, são frequentemente causados pelo uso implícito ou explícito de `any`, pois ele permite que erros de tipo passem despercebidos durante o desenvolvimento e só apareçam em tempo de execução ou no build.
+
+- **Alternativas:**
+  - **`unknown`:** Se você realmente não sabe o tipo de uma variável (ex: vinda de uma API externa), use `unknown`. Ele é seguro, pois força você a fazer uma verificação de tipo (com `typeof`, `instanceof`, ou type guards) antes de poder usá-lo.
+  - **Tipos Genéricos (`<T>`):** Para funções e componentes que podem operar com diferentes tipos de dados.
+  - **Tipagem Específica:** Sempre que possível, defina interfaces (`interface`) ou tipos (`type`) para os seus dados.
+
+Essa regra não é negociável e é automaticamente verificada pelo nosso linter no processo de build.
+
+## Versionamento
+
+O projeto segue o [Semantic Versioning](https://semver.org/lang/pt-BR/) (MAJOR.MINOR.PATCH).
